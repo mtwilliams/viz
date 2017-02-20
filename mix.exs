@@ -23,6 +23,9 @@ defmodule GithubViz.Mixfile do
   defp deps do [
     # Basics
     {:poison, "~> 3.1"},
-    {:httpoison, "~> 0.11"}
+    {:httpoison, "~> 0.11"},
+
+    # Infrastructure
+    {:gen_stage, "~> 0.11"}
   ] end
 end

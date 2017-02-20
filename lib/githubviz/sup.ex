@@ -6,6 +6,12 @@ defmodule GithubViz.Supervisor do
   end
 
   def init(_options) do
-    supervise([], strategy: :one_for_one)
+    children = [
+      worker(GithubViz.Events.Collector, [], restart: :permanent),
+      worker(GithubViz.Events.Enricher, [], restart: :permanent),
+      worker(GithubViz.StatisticsReporter, [], restart: :permanent)
+    ]
+
+    supervise(children, strategy: :one_for_one)
   end
 end
