@@ -1,0 +1,16 @@
+#
+# Erlang/Elixir
+#
+
+# Ignore build artifacts and releases.
+_build/
+_rel/
+
+# Ignore dependencies.
+_deps/
+
+#
+# Secrets
+#
+
+config/*.secrets.exs
