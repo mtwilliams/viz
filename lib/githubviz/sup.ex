@@ -8,6 +8,7 @@ defmodule GithubViz.Supervisor do
   def init(_options) do
     children = [
       worker(GithubViz.Events.Collector, [], restart: :permanent),
+      worker(GithubViz.Events.Deduplicator, [], restart: :permanent),
       worker(GithubViz.Events.Enricher, [], restart: :permanent),
       worker(GithubViz.StatisticsReporter, [], restart: :permanent)
     ]

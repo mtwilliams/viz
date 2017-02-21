@@ -15,7 +15,7 @@ defmodule GithubViz.Events.Enricher do
   end
 
   def init([]) do
-    {:producer_consumer, %__MODULE__{}, subscribe_to: [GithubViz.Events.Collector]}
+    {:producer_consumer, %__MODULE__{}, subscribe_to: [GithubViz.Events.Deduplicator]}
   end
 
   def handle_events(events, _from, state) do

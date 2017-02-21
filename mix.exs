@@ -2,7 +2,7 @@ defmodule GithubViz.Mixfile do
   use Mix.Project
 
   def project do [
-    app: :github_viz,
+    app: :githubviz,
     version: "0.0.0",
     elixir: "~> 1.4",
     config_path: "config/config.exs",
