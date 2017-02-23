@@ -10,6 +10,8 @@ defmodule GithubViz.Supervisor do
       worker(GithubViz.Events.Collector, [], restart: :permanent),
       worker(GithubViz.Events.Deduplicator, [], restart: :permanent),
       worker(GithubViz.Events.Enricher, [], restart: :permanent),
+      worker(GithubViz.Events.Broadcaster, [], restart: :permanent),
+
       worker(GithubViz.StatisticsReporter, [], restart: :permanent)
     ]
 

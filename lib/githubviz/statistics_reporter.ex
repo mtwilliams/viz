@@ -24,7 +24,7 @@ defmodule GithubViz.StatisticsReporter do
   end
 
   def init([]) do
-    {:consumer, %__MODULE__{}, subscribe_to: [GithubViz.Events.Enricher]}
+    {:consumer, %__MODULE__{}, subscribe_to: [GithubViz.Events.Broadcaster]}
   end
 
   def handle_events(events, _from, state) do
