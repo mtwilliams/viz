@@ -6,6 +6,11 @@
 _build/
 _rel/
 
+# Ignore native code.
+apps/githubviz/priv/bitset.so
+apps/githubviz/priv/bitset.so.dSYM
+apps/githubviz/priv/bitset.dll
+
 # Ignore dependencies.
 _deps/
 

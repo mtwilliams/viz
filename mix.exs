@@ -1,31 +1,16 @@
-defmodule GithubViz.Mixfile do
+defmodule GithubViz.Umbrella.Mixfile do
   use Mix.Project
 
   def project do [
-    app: :githubviz,
+    name: "GithubViz",
     version: "0.0.0",
-    elixir: "~> 1.4",
+    apps_path: "apps",
     config_path: "config/config.exs",
     build_path: "_build",
     deps_path: "_deps",
     lockfile: "mix.lock",
     build_embedded: Mix.env == :prod,
     start_permanent: Mix.env == :prod,
-    deps: deps()
-  ] end
-
-  def application do [
-    mod: {GithubViz, []},
-    extra_applications: [:logger],
-    env: []
-  ] end
-
-  defp deps do [
-    # Basics
-    {:poison, "~> 3.1"},
-    {:httpoison, "~> 0.11"},
-
-    # Infrastructure
-    {:gen_stage, "~> 0.11"}
+    deps: []
   ] end
 end

@@ -1,4 +1,8 @@
-defmodule GithubViz.Event.Parser do
+defmodule GithubViz.Github.Event do
+  defstruct [:id, :type, :actor, :repository]
+end
+
+defmodule GithubViz.Github.Event.Parser do
   @moduledoc ~S"""
   Parses events from Github into zero or more `GithubViz.Event`s.
   """
@@ -9,19 +13,22 @@ defmodule GithubViz.Event.Parser do
   end
 
   defp generate(type, event) do
-    %GithubViz.Event{
-      id: event["id"],
+    %GithubViz.Github.Event{
+      id: id(event["id"]),
       type: type,
-      actor: %GithubViz.Event.Actor{
-        id: event["actor"]["id"],
-        url: event["actor"]["url"],
-        avatar: event["actor"]["avatar_url"],
-        login: event["actor"]["login"]},
-      repository: %GithubViz.Event.Repository{
-        id: event["repo"]["id"],
-        url: event["repo"]["url"],
-        name: event["repo"]["name"]}
+      actor: %GithubViz.Github.Ref{
+        id: id(event["actor"]["id"]),
+        url: event["actor"]["url"]},
+      repository: %GithubViz.Github.Ref{
+        id: id(event["repo"]["id"]),
+        url: event["repo"]["url"]}
     }
+  end
+
+  defp id(raw) when is_integer(raw), do: raw
+  defp id(raw) when is_binary(raw) do
+    {parsed, ""} = Integer.parse(raw)
+    parsed
   end
 
   defp do_parse(%{"type" => "CreateEvent"} = event) do
@@ -68,19 +75,19 @@ defmodule GithubViz.Event.Parser do
 
   defp do_parse(%{"type" => "CommitCommentEvent"} = event) do
     if event["payload"]["action"] == "created" do
-      generate(:"comments.commit", event)
+      generate(:"commit.comments", event)
     end
   end
 
   defp do_parse(%{"type" => "IssueCommentEvent"} = event) do
     if event["payload"]["action"] == "created" do
-      generate(:"comments.issue", event)
+      generate(:"issue.comments", event)
     end
   end
 
   defp do_parse(%{"type" => "PullRequestReviewCommentEvent"} = event) do
     if event["payload"]["action"] == "created" do
-      generate(:"comments.review", event)
+      generate(:"review.comments", event)
     end
   end
 

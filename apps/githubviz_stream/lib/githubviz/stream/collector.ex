@@ -1,4 +1,4 @@
-defmodule GithubViz.Events.Collector do
+defmodule GithubViz.Stream.Collector do
   @moduledoc ~S"""
   Periodically polls Github for new events.
   """
@@ -32,11 +32,15 @@ defmodule GithubViz.Events.Collector do
     {:producer, %__MODULE__{}}
   end
 
+  alias GithubViz.Github
+  alias GithubViz.Metrics, as: M
+
   def handle_info({:fetch, page}, state) do
     spawn fn ->
+      M.count("collector.polls", 1)
       headers = %{"If-None-Match" => state.etags[page]}
       parameters = %{page: page, per_page: @events_per_page}
-      {:ok, response} = GithubViz.Github.get("/events", headers, parameters)
+      {:ok, response} = Github.get("/events", headers, parameters)
       send(__MODULE__, {:fetched, page, response})
     end
 
@@ -44,13 +48,7 @@ defmodule GithubViz.Events.Collector do
   end
 
   def handle_info({:fetched, page, {status, headers, body} = response}, state) do
-    # TODO(mtwilliams): Track these metrics.
-    # {limit, _} = Map.fetch!(headers, "X-RateLimit-Limit") |> Integer.parse
-    # {remaining, _} = Map.fetch!(headers, "X-RateLimit-Remaining") |> Integer.parse
-    # {reset, _} = Map.fetch!(headers, "X-RateLimit-Reset") |> Integer.parse
-    # delta = reset - System.system_time(:seconds)
-
-    {interval, _} = Map.fetch!(headers, "X-Poll-Interval") |> Integer.parse
+    {interval, _} = Map.get(headers, "X-Poll-Interval", "60") |> Integer.parse
     etag = Map.get(headers, "ETag")
 
     events = extract(response)
@@ -61,6 +59,9 @@ defmodule GithubViz.Events.Collector do
 
     # Nomially, we'll fetch the page again in 60 seconds.
     Process.send_after(__MODULE__, {:fetch, page}, interval * 1_000)
+
+    M.sample("collector.time_between_polls", interval * 1_000)
+    M.count("events.collected", length(events))
 
     {:noreply, events, %__MODULE__{
       state | interval: interval,
@@ -73,7 +74,7 @@ defmodule GithubViz.Events.Collector do
   end
 
   defp extract({200, _, body}) do
-    body |> Poison.decode! |> Enum.flat_map(&GithubViz.Event.Parser.parse/1)
+    body |> Poison.decode! |> Enum.flat_map(&Github.Event.Parser.parse/1)
   end
 
   defp extract({304, _, _}) do
